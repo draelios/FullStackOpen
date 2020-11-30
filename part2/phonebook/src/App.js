@@ -15,11 +15,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
 
-  useEffect(getPersons, []);
-  
-  const testnohacenada = () => {
-    return true;
-  }
+  useEffect(getPersons, []); 
 
   const addPerson = (event) => {
     event.preventDefault();
