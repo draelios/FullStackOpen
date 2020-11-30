@@ -17,6 +17,9 @@ const App = () => {
 
   useEffect(getPersons, []);
   
+  const testnohacenada = () => {
+    return true;
+  }
 
   const addPerson = (event) => {
     event.preventDefault();
