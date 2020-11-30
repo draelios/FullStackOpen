@@ -17,6 +17,10 @@ const App = () => {
 
   useEffect(getPersons, []); 
 
+  const testhacealgo = () => {
+    return 1;
+  }
+
   const addPerson = (event) => {
     event.preventDefault();
 
