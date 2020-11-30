@@ -1,19 +1,18 @@
-import React from 'react'
+import React from 'react';
 
-const ListElement = ({name, onClick}) => {
-
+const ListElement = ({ name, onClick }) => {
   const ContainerStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  width: 200
-}
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: 200,
+  };
 
-  return(
-      <div style={ContainerStyle}>
-        <li>{name}</li>
-        <button name={name} onClick={onClick}>Show</button>
-     </div>
-  )
-}
+  return (
+    <div style={ContainerStyle}>
+      <li>{name}</li>
+      <button name={name} onClick={onClick} type="button">Show</button>
+    </div>
+  );
+};
 
 export default ListElement;

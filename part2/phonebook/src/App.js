@@ -2,25 +2,21 @@ import React, { useState, useEffect } from 'react'
 import Agenda from './components/Agenda.jsx'
 import NewPerson from './components/NewPerson.jsx'
 import Filter from './components/Filter.jsx'
-import axios from 'axios';
+import services from './Services/services.js';
 
 const App = () => {
 
+
   const getPersons = () =>{
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      setPersons(response.data);
-      setShowList(response.data);
-    })
+    services.getAll().then(response => setPersons(response.data))
   }
 
   const [ persons, setPersons ] = useState([]) ;
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
-  const [ showList, setShowList ] = useState(persons);
 
   useEffect(getPersons, []);
+  
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -33,8 +29,8 @@ const App = () => {
     if(persons.filter(person => person.name === newName).length > 0){
       alert(`${newName} is already added to the phonebook.`);
     } else {
-      setPersons(persons.concat(newPerson));  
-      setShowList(persons);  
+      services.createPerson(newPerson)
+      getPersons();
     }
 
   }
@@ -52,7 +48,7 @@ const App = () => {
       const fileteredPersons = persons.filter(p => {
       return p.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1;
       });
-      setShowList(fileteredPersons)
+      setPersons(fileteredPersons);
     }
 
   }
@@ -67,7 +63,7 @@ const App = () => {
         onNumberChange={handleNumberChange}
         addPerson={addPerson}
       />
-      <Agenda persons={showList} />
+      <Agenda persons={persons} />
     </div>
   )
 }

@@ -1,16 +1,15 @@
-import React from 'react'
-import ListElement from './ListElement'
+import React from 'react';
+import ListElement from './ListElement';
 import Detail from './Detail';
 
-const Show = ({countries, onClick}) => {
-  if(countries.length > 1 && countries.length <= 10){
-    return(
+const List = ({ countries, onClick }) => {
+  if (countries.length > 1 && countries.length <= 10) {
+    return (
       <ul>
-        {countries.map(country =>
-          <ListElement key={country.name} name={country.name} onClick={onClick}/>
-        )}
+        {countries.map((country) =>
+          <ListElement key={country.name} name={country.name} onClick={onClick} />)}
       </ul>
-    )
+    );
   } else if (countries.length > 10){
       return <p>Too many countries</p>
   } else if (countries.length===1) {
@@ -21,4 +20,4 @@ const Show = ({countries, onClick}) => {
   
 }
 
-export default Show;
+export default List;

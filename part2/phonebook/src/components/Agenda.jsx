@@ -4,7 +4,7 @@ import Contact from './Contact'
 const Agenda = ({persons}) => {
   return (
     <>
-      <h2>Numbers</h2>
+      <h2>Agenda</h2>
       <table>
         <tbody>
           {persons.map(person => <Contact key={person.name} person={person}/>)}

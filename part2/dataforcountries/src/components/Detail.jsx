@@ -5,7 +5,7 @@ import Weather from './Weather';
 const Detail = ({ country }) => (
   <div>
     <Country country={country} />
-    <Weather weather={country.weather} />
+    {/* <Weather weather={country.weather} /> */}
   </div>
 );
 
