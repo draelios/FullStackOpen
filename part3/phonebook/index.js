@@ -1,12 +1,16 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const mongoose = require('mongoose');
 
 const app = express();
+
+require('dotenv').config();
 
 app.use(express.json());
 app.use(express.static('build'));
 app.use(cors());
+app.use(mongoose());
 
 morgan.token('post', (req, res) => {
   if (req.method === 'POST') {
@@ -94,4 +98,5 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Server running on port ${PORT}`);
+  console.log(process.env.patata);
 });

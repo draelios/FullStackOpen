@@ -1,28 +1,30 @@
 import React from 'react';
 
-const Weather = ({ weather }) => (
-  <div>
-    <h2>
-      Weather in
-      {weather.location.name}
-    </h2>
-    <p>
-      <strong>Temperature:</strong>
-      {weather.current.temperature}
-      {' '}
-      Celsius
-    </p>
-    <img src={weather.current.weather_icons[0]} alt="Weahter symbol" />
-    <p>
-      <strong>Wind:</strong>
-      {weather.current.wind_speed}
-      {' '}
-      km/h
-      direction
-      {weather.current.wind_dir}
-    </p>
-  </div>
-);
+const Weather = ({ weather, city }) => {
+  if (!weather) {
+    return null;
+  }
 
+  return (
+    <div>
+      <h3>
+        Weather in
+        {city}
+      </h3>
+      <div>
+        <strong>temperature:</strong>
+        {weather.temperature}
+        Celcius
+      </div>
+      <img src={weather.weather_icons[0]} alt={weather.weather_descriptions[0]} />
+      <div>
+        <strong>wind:</strong>
+        {weather.wind_speed}
+        mph direction
+        {weather.wind_dir}
+      </div>
+    </div>
+  );
+};
 
 export default Weather;

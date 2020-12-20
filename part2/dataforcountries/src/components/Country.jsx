@@ -1,27 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Weather from './Weather';
 
 const Country = ({ country }) => {
-  const imgStyle = {
-    width: '300',
-    height: '200',
-  };
+  const [weather, setWeather] = useState(null);
+  const apiKey = process.env.REACT_APP_API_KEY;
+  const url = `http://api.weatherstack.com/current?access_key=${apiKey}&query=${country.capital}`;
+
+  useEffect(() => {
+    axios.get(url).then((response) => {
+      setWeather(response.data.current);
+    });
+  }, []);
 
   return (
     <div>
-      <h1>{country.name}</h1>
-      <p>
-        Capital:
+      <h2>{country.name}</h2>
+
+      <div>
+        capital
         {country.capital}
-      </p>
-      <p>
-        Population:
+      </div>
+      <div>
+        population
         {country.population}
-      </p>
-      <h2>Languages</h2>
+      </div>
+
+      <h3>Spoken languages</h3>
       <ul>
-        {country.languages.map((lang) => <li>{lang.name}</li>)}
+        {country.languages.map((lang) => (
+          <li key={lang.iso639_2}>
+            {lang.name}
+          </li>
+        ))}
       </ul>
-      <img style={imgStyle} src={country.flag} alt="Flag of the country" />
+      <div>
+        <img src={country.flag} height="80px" alt="flag" />
+      </div>
+      <Weather weather={weather} city={country.capital} />
     </div>
   );
 };
