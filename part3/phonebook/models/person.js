@@ -1,13 +1,9 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
+require('dotenv').config();
 
-if (process.argv.length < 3) {
-  console.log('Please provide the password as an argument: node mongo.js <password>');
-  process.exit(1);
-}
-
-const password = process.argv[2];
-
-const url = `mongodb://YelpAdmin:${password}@cluster0-shard-00-00.fwsk3.mongodb.net:27017 cluster0-shard-00-01.fwsk3.mongodb.net:27017,cluster0-shard-00-02.fwsk3.mongodb.net:27017/Persons?replicaSet=Cluster0-shard-0&ssl=true&authSource=admin`;
+const url = process.env.DB_ROUTE;
 
 mongoose.connect(url,
   {
@@ -17,16 +13,23 @@ mongoose.connect(url,
     useCreateIndex: true,
   });
 
+// we define the schema for a person
 const personSchema = new mongoose.Schema({
   name: String,
   number: String,
-});
+},
+{ timestamps: true });
 
+// we create a collection for the person schema and give it a name
 const Person = mongoose.model('Person', personSchema);
 
-const person = new Person({
-  name: process.argv[3],
-  number: process.argv[4],
+// converts the id from mongo to a string an assigns it to the new object
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
 });
 
-
+module.exports = Person;

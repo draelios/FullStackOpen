@@ -6,7 +6,6 @@ import services from './Services/services.js';
 
 const App = () => {
 
-
   const getPersons = () =>{
     services.getAll().then(response => setPersons(response.data))
   }
