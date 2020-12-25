@@ -1,19 +1,19 @@
 import axios from 'axios';
 
-const baseUrl = 'http://localhost:3001/api/persons';
+const baseUrl = 'https://phonebook-fullstack-ac.herokuapp.com';
+const local = 'http://localhost:3001';
 
 const getAll = () => {
-  const request = axios.get(baseUrl)
-  return request
+  return axios.get(`${local}/api/persons`)
 }
 
 const createPerson = (newPerson) => {
-  axios.post(baseUrl, newPerson)
+  return axios.post(`${local}/api/persons`, newPerson)
 }
 
 const deletePerson = (id) => {
   alert('Do you want to delete this person?')
-  axios.delete(`${baseUrl}/${id}`)
+  return axios.delete(`${local}/api/persons/${id}`)
 }
 
 

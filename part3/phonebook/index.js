@@ -1,8 +1,9 @@
 const express = require('express');
-const axios = require('axios');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require('path');
 const Person = require('./models/person');
+
 require('dotenv').config();
 
 const app = express();
@@ -21,10 +22,14 @@ function errorHandler(err, req, res, next) {
 }
 
 app.use(express.json());
-app.use(express.static('build'));
+app.use(express.static(path.join(__dirname, 'build')));
 app.use(cors());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'));
 app.use(errorHandler);
+
+app.get('/', (req, res) => {
+  res.sendFile('./build/static/js/main.76764cce.chunk.js');
+});
 
 app.get('/info', (req, res) => {
   const date = new Date();
@@ -35,7 +40,7 @@ app.get('/info', (req, res) => {
 
 // eslint-disable-next-line arrow-body-style
 app.get('/api/persons', (req, res, next) => {
-  Person.find({})
+  return Person.find({})
     .then((persons) => {
       res.json(persons);
     })
@@ -58,21 +63,25 @@ app.get('/api/persons/:id', (req, res, next) => {
 app.post('/api/persons', (req, res, next) => {
   if (!req.body.name || !req.body.number) {
     res.status(422).send('Error: Name and number must be informed');
-  } else if (Person.findOne({ name: req.params.name })) {
-    Person.findOneAndUpdate(
-      { name: req.body.name },
-      { number: req.body.number },
-    )
-      .catch((error) => next(error));
   } else {
-    const person = {
-      name: req.body.name,
-      number: req.body.number,
-    };
-    Person.create(person)
-      .catch((error) => next(error));
+    Person.find({ name: req.body.name }, (err, person) => {
+      if (person.length > 0) {
+        Person.findOneAndUpdate(
+          { name: req.body.name },
+          { number: req.body.number },
+        )
+          .catch((error) => next(error));
+      } else {
+        // eslint-disable-next-line no-shadow
+        const person = {
+          name: req.body.name,
+          number: req.body.number,
+        };
+        Person.create(person)
+          .catch((error) => next(error));
+      }
+    });
   }
-  res.redirect(302, '/api/persons');
 });
 
 app.put('/api/persons/update', (req, res, next) => {

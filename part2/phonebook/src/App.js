@@ -7,12 +7,17 @@ import services from './Services/services.js';
 const App = () => {
 
   const getPersons = () =>{
-    services.getAll().then(response => setPersons(response.data))
-  }
+    services.getAll()
+    .then(res => {
+      const newPersons = [...res.data]
+      setPersons(newPersons);
+    })
+  };
 
   const [ persons, setPersons ] = useState([]) ;
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
+  const [ filter, setFilter ] = useState('');
 
   useEffect(getPersons, []); 
 
@@ -27,33 +32,28 @@ const App = () => {
     if(persons.filter(person => person.name === newName).length > 0){
       alert(`${newName} is already added to the phonebook.`);
     } else {
-      services.createPerson(newPerson)
-      getPersons();
+      services.createPerson(newPerson);
+      setNewName('');
+      setNewNumber('');
     }
-
-  }
+    getPersons();
+  };
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
-  }
+  };
 
   const handleNumberChange = (event) => {
     setNewNumber(event.target.value);
-  }
+  };
 
-  const searchContacts = (event) => {
-    if(event.target.value.length > 0){
-      const fileteredPersons = persons.filter(p => {
-      return p.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1;
-      });
-      setPersons(fileteredPersons);
-    }
-
-  }
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
+  };
 
   return (
     <div>
-      <Filter filter={searchContacts} />
+      <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <NewPerson 
         newName={newName} 
         newNumber={newNumber} 
@@ -61,7 +61,7 @@ const App = () => {
         onNumberChange={handleNumberChange}
         addPerson={addPerson}
       />
-      <Agenda persons={persons} />
+      <Agenda filter={filter} persons={persons} />
     </div>
   )
 }
