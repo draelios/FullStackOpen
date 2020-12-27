@@ -1,20 +1,20 @@
 import axios from 'axios';
 
-const baseUrl = 'https://phonebook-fullstack-ac.herokuapp.com';
-const local = 'http://localhost:3001';
+const PROD = 'https://phonebook-fullstack-ac.herokuapp.com';
+const DEV = 'http://localhost:3001';
+const url = process.env.NODE_ENV === 'production' ? PROD : DEV; 
 
 const getAll = () => {
-  return axios.get(`${local}/api/persons`)
-}
+  return axios.get(`${url}/api/persons`)
+};
 
 const createPerson = (newPerson) => {
-  return axios.post(`${local}/api/persons`, newPerson)
-}
+  return axios.post(`${url}/api/persons`, newPerson)
+};
 
-const deletePerson = (id) => {
-  alert('Do you want to delete this person?')
-  return axios.delete(`${local}/api/persons/${id}`)
-}
+const deleteOne = (id) => {
+  return axios.delete(`${url}/api/persons/${id}`)
+};
 
 
-export default {getAll, createPerson, deletePerson};
+export default {getAll, createPerson, deleteOne};
