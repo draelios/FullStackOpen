@@ -3,6 +3,9 @@ import Agenda from './components/Agenda.jsx'
 import NewPerson from './components/NewPerson.jsx'
 import Filter from './components/Filter.jsx'
 import services from './Services/services.js';
+import Success from './components/Success.jsx';
+import Error from './components/Error.jsx';
+import './App.css';
 
 const App = () => {
 
@@ -18,6 +21,8 @@ const App = () => {
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
   const [ filter, setFilter ] = useState('');
+  const [ errorMessage, setErrorMessage] = useState(null);
+  const [ successMessage, setSuccessMessage] = useState(null);
 
   useEffect(getPersons, []); 
 
@@ -30,20 +35,34 @@ const App = () => {
     };
 
     if(persons.filter(person => person.name === newName).length > 0){
-      alert(`${newName} is already added to the phonebook.`);
+      setErrorMessage(`${newName} already exists in the DBB`);
+      setTimeout(() => {
+          setErrorMessage(null)
+      }, 5000)
     } else {
       services.createPerson(newPerson)
       .then(result => {
         setNewName('');
         setNewNumber('');
+        setSuccessMessage(`${newName} was created successfully`);
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
         getPersons();
+        
       })
     }
   };
 
   const deletePerson = (id) => {
-    services.deleteOne(id);
-    getPersons();
+    services.deleteOne(id)
+    .then((result) => {
+      getPersons();
+      setSuccessMessage(`Contact deleted successfully`);
+      setTimeout(() => {
+          setSuccessMessage(null)
+      }, 5000)
+    });
   };
 
   const handleNameChange = (event) => {
@@ -60,6 +79,8 @@ const App = () => {
 
   return (
     <div>
+      <Success message={successMessage} />
+      <Error message={errorMessage} />
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <NewPerson 
         newName={newName} 
