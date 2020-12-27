@@ -11,7 +11,7 @@ const App = () => {
     .then(res => {
       const newPersons = [...res.data];
       setPersons(newPersons);
-    })
+    });
   };
 
   const [ persons, setPersons ] = useState([]) ;
@@ -32,15 +32,18 @@ const App = () => {
     if(persons.filter(person => person.name === newName).length > 0){
       alert(`${newName} is already added to the phonebook.`);
     } else {
-      services.createPerson(newPerson);
-      setNewName('');
-      setNewNumber('');
+      services.createPerson(newPerson)
+      .then(result => {
+        setNewName('');
+        setNewNumber('');
+        getPersons();
+      })
     }
-    getPersons(); 
   };
 
-  const deletePerson = (event, id) => {
-    console.log('eliminar people?????', id);
+  const deletePerson = (id) => {
+    services.deleteOne(id);
+    getPersons();
   };
 
   const handleNameChange = (event) => {
@@ -52,7 +55,7 @@ const App = () => {
   };
 
   const handleFilterChange = (event) => {
-    setFilter(event.target.value);
+    setFilter(event.target.value);/
   };
 
   return (
@@ -70,4 +73,4 @@ const App = () => {
   )
 }
 
-export default App
+export default App;

@@ -6,7 +6,7 @@ const Contact = ({person, deletePerson}) => {
     <tr>
       <td>{person.name}</td>
       <td>{person.number}</td>
-      <button type='button' onClick={()=>this.deletePerson(person.id)}> delete</button>
+      <button type='button' onClick={() => deletePerson(person.id)}> delete</button>
     </tr>    
   )
 }

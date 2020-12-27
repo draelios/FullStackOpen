@@ -70,6 +70,10 @@ app.post('/api/persons', (req, res, next) => {
           { name: req.body.name },
           { number: req.body.number },
         )
+          .then((result) => {
+            console.log(result);
+            res.redirect(`/api/persons/${result.id}`);
+          })
           .catch((error) => next(error));
       } else {
         // eslint-disable-next-line no-shadow
@@ -78,6 +82,10 @@ app.post('/api/persons', (req, res, next) => {
           number: req.body.number,
         };
         Person.create(person)
+          .then((result) => {
+            console.log(result);
+            res.redirect(`/api/persons/${result.id}`);
+          })
           .catch((error) => next(error));
       }
     });
@@ -91,7 +99,7 @@ app.put('/api/persons/update', (req, res, next) => {
   )
     // eslint-disable-next-line no-unused-vars
     .then((person) => {
-      res.redirect(302, '/api/persons');
+      res.status(200).send();
     })
     .catch((error) => next(error));
 });
@@ -100,11 +108,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
   const { id } = req.params;
   Person.deleteOne({ _id: id })
     .then((person) => {
-      if (person.n === 1) {
-        res.redirect(302, '/api/persons');
-      } else {
-        res.status(404).send();
-      }
+      res.status(200).send();
     })
     .catch((error) => next(error));
 });
