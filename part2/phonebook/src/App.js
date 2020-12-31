@@ -34,13 +34,7 @@ const App = () => {
       number: newNumber
     };
 
-    if(persons.filter(person => person.name === newName).length > 0){
-      setErrorMessage(`${newName} already exists in the DBB`);
-      setTimeout(() => {
-          setErrorMessage(null)
-      }, 5000)
-    } else {
-      services.createPerson(newPerson)
+    services.createPerson(newPerson)
       .then(result => {
         setNewName('');
         setNewNumber('');
@@ -49,9 +43,13 @@ const App = () => {
           setSuccessMessage(null)
         }, 5000)
         getPersons();
-        
       })
-    }
+     .catch((error) => {
+      setErrorMessage(error.response.data);
+      setTimeout(() => {
+          setErrorMessage(null)
+      }, 5000)
+      })
   };
 
   const deletePerson = (id) => {
@@ -62,7 +60,13 @@ const App = () => {
       setTimeout(() => {
           setSuccessMessage(null)
       }, 5000)
-    });
+    })
+    .catch((error) => {
+      setErrorMessage(error.response.data);
+      setTimeout(() => {
+          setErrorMessage(null)
+      }, 5000)
+    })
   };
 
   const handleNameChange = (event) => {

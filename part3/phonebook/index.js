@@ -21,12 +21,14 @@ function errorHandler(err, req, res, next) {
   res.status(500).send();
 }
 
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(cors());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'));
 app.use(errorHandler);
 
+// ROUTES
 app.get('/', (req, res) => {
   res.sendFile('./build/static/js/main.76764cce.chunk.js');
 });
@@ -61,35 +63,29 @@ app.get('/api/persons/:id', (req, res, next) => {
 });
 
 app.post('/api/persons', (req, res, next) => {
-  if (!req.body.name || !req.body.number) {
-    res.status(422).send('Error: Name and number must be informed');
-  } else {
-    Person.find({ name: req.body.name }, (err, person) => {
-      if (person.length > 0) {
-        Person.findOneAndUpdate(
-          { name: req.body.name },
-          { number: req.body.number },
-        )
-          .then((result) => {
-            console.log(result);
-            res.redirect(`/api/persons/${result.id}`);
-          })
-          .catch((error) => next(error));
-      } else {
-        // eslint-disable-next-line no-shadow
-        const person = {
-          name: req.body.name,
-          number: req.body.number,
-        };
-        Person.create(person)
-          .then((result) => {
-            console.log(result);
-            res.redirect(`/api/persons/${result.id}`);
-          })
-          .catch((error) => next(error));
-      }
-    });
-  }
+  Person.find({ name: req.body.name }, (err, person) => {
+    if (person.length > 0) {
+      Person.findOneAndUpdate(
+        { name: req.body.name },
+        { number: req.body.number },
+      )
+        .then((person) => res.status(200).send())
+        .catch((error) => {
+          res.status(402).json(error.message);
+        });
+    } else {
+      // eslint-disable-next-line no-shadow
+      const person = {
+        name: req.body.name,
+        number: req.body.number,
+      };
+      Person.create(person)
+        .then((person) => res.status(200).send())
+        .catch((error) => {
+          res.status(402).json(error.message);
+        });
+    }
+  });
 });
 
 app.put('/api/persons/update', (req, res, next) => {
@@ -98,18 +94,14 @@ app.put('/api/persons/update', (req, res, next) => {
     { number: req.body.number },
   )
     // eslint-disable-next-line no-unused-vars
-    .then((person) => {
-      res.status(200).send();
-    })
+    .then((person) => res.status(200).send())
     .catch((error) => next(error));
 });
 
 app.delete('/api/persons/:id', (req, res, next) => {
   const { id } = req.params;
   Person.deleteOne({ _id: id })
-    .then((person) => {
-      res.status(200).send();
-    })
+    .then((person) => res.status(200).send())
     .catch((error) => next(error));
 });
 
