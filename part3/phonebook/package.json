@@ -4,11 +4,11 @@
   "description": "phonebook backend",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js ",
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "build:ui": "rm -rf build && cd ../../part2/phonebook/ && npm run build --prod && cp -r build ../../part3/phonebook/",
     "deploy": "git push heroku master",
-    "deploy:full": "npm run build:ui && cd ../../.. && cp -r FullStackOpen/part3/phonebook/. ../Web/phonebook && cd phonebook && git add . && git commit -m uibuild && npm run deploy",
+    "deploy:full": "npm run build:ui && cd ../../.. && rm -rf ./Web/phonebook/build && cp -r FullStackOpen/part3/phonebook/. ../Web/phonebook && cd phonebook && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail",
     "dev:new": "npm run build:ui && npm run dev"
   },
