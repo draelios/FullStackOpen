@@ -7,7 +7,7 @@
 /.vscode
 .eslintrc.json
 .gitignore
-
+test.js
 # testing
 /coverage
 

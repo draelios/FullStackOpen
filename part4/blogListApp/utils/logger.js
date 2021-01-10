@@ -4,6 +4,9 @@ other libraries later on
 */
 /* eslint-disable no-console */
 const info = (...params) => {
+  if (process.env.NODE_ENV === 'test') {
+    return -1;
+  }
   console.log(...params);
 };
 
