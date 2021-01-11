@@ -11,8 +11,8 @@ const config = require('./utils/config');
 const app = express();
 
 // Controllers and middlewares imports
-const blogsRouter = require('./controllers/blogs.js');
-const middleware = require('./utils/middleware.js');
+const blogsRouter = require('./controllers/blogs');
+const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
 
 logger.info('connecting to DB...');
@@ -36,7 +36,6 @@ app.use(cors());
 app.use(express.static('build'));
 app.use(express.json());
 app.use(middleware.requestLogger);
-app.use(express.Router());
 app.use('/api/blogs', blogsRouter);
 
 app.use(middleware.unknownEndpoint);
