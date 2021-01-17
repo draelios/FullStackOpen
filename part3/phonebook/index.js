@@ -29,9 +29,9 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :p
 app.use(errorHandler);
 
 // ROUTES
-app.get('/', (req, res) => {
-  res.sendFile('./build/static/js/main.76764cce.chunk.js');
-});
+// 
+
+
 
 app.get('/info', (req, res) => {
   const date = new Date();
