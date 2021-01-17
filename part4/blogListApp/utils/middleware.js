@@ -2,6 +2,7 @@
 Contains all the middlware funcins, such as error control o login verfication,
 access rights, etc.
 */
+const jwt = require('jsonwebtoken');
 const logger = require('./logger');
 
 const requestLogger = (request, response, next) => {
@@ -9,6 +10,18 @@ const requestLogger = (request, response, next) => {
   logger.info('Path:  ', request.path);
   logger.info('Body:  ', request.body);
   logger.info('-----------------------');
+  next();
+};
+
+const passwordValidator = (request, response, next) => {
+  const { password } = request.body;
+  if (password.length < 3) {
+    const error = {
+      name: 'ValidationError',
+      message: 'Password must be at least 3 characters long',
+    };
+    next(error);
+  }
   next();
 };
 
@@ -21,15 +34,31 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' });
-  } if (error.name === 'ValidationError') {
+  }
+
+  if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
   }
 
+  if (error.name === 'JsonWebTokenError') {
+    return response.status(401).json({ error: 'invalid token' });
+  }
+
   next(error);
+};
+
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    request.token = authorization.substring(7);
+  }
+  next();
 };
 
 module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
+  passwordValidator,
+  tokenExtractor,
 };
