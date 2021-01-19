@@ -68,6 +68,17 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 });
 
 blogsRouter.put('/:id', async (request, response, next) => {
+  const blogToDelete = await Blog.findById(request.params.id);
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+  if (!request.token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+
+  if (blogToDelete.userId.toString() !== decodedToken.id.toString()) {
+    return response.status(401).json({ error: 'Permission denied. You do not own this blog.' });
+  }
+
   const { id } = request.params;
   const updatedProperties = request.body;
   try {

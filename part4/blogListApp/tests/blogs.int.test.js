@@ -9,10 +9,30 @@ const Blog = require('../models/blog');
 const User = require('../models/user');
 
 describe('Blog functionality testing', () => {
-  beforeEach(async () => {
+  let token = '';
+  const badToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBwcHBwcHBwcHBwcHBwcHBwcHBwcHAiLCJpZCI6IjYwMDFhODc5NjM5YTgwNDJlZTBiMjMwMiIsImlhdCI6MTYxMTAwMjY1Nn0.FlDItB4vszMpMetxacct6UPl5uyCDjouCwxcr1eSefk';
+  beforeAll(async () => {
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash('sekret', 10);
+    const newUser = new User({
+      username: 'root',
+      name: 'rooter underson',
+      email: 'under@gmail.com',
+      passwordHash,
+    });
+
+    const user = await newUser.save();
+
+    const petition = await api
+      .post('/login')
+      .send({ username: 'root', password: 'sekret' });
+
+    token = petition.body.token;
+
     await Blog.deleteMany({});
 
-    const noteObjects = helper.initialBlogs.map((blog) => new Blog(blog));
+    const noteObjects = helper.initialBlogs.map((blog) => new Blog({ ...blog, userId: user.id }));
     const promiseArray = noteObjects.map((blog) => blog.save());
     await Promise.all(promiseArray);
   });
@@ -48,7 +68,7 @@ describe('Blog functionality testing', () => {
     });
   });
 
-  describe('inserting a new block', () => {
+  describe('inserting a new blog', () => {
     test('a valid blog can be added', async () => {
       const newBlog = {
         title: 'How to create blogs',
@@ -59,6 +79,7 @@ describe('Blog functionality testing', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/);
@@ -73,6 +94,7 @@ describe('Blog functionality testing', () => {
     });
 
     test('blog without title is not added', async () => {
+      const initialBlogs = await helper.blogsInDb();
       const newBlog = {
         author: 'Albert Cantero',
         url: 'google.com',
@@ -81,15 +103,17 @@ describe('Blog functionality testing', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(400);
 
       const blogsAtEnd = await helper.blogsInDb();
 
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+      expect(blogsAtEnd).toHaveLength(initialBlogs.length);
     }, 10000);
 
     test('blog without title and url is not added', async () => {
+      const initialBlogs = await helper.blogsInDb();
       const newBlog = {
         author: 'Albert Cantero',
         likes: 10000,
@@ -97,15 +121,17 @@ describe('Blog functionality testing', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(400);
 
       const blogsAtEnd = await helper.blogsInDb();
 
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+      expect(blogsAtEnd).toHaveLength(initialBlogs.length);
     }, 10000);
 
     test('blog without likes has a value of 0 likes', async () => {
+      const initialBlogs = await helper.blogsInDb();
       const newBlog = {
         title: 'How to create blogs',
         author: 'Albert Cantero',
@@ -114,133 +140,83 @@ describe('Blog functionality testing', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/);
 
       const blogsAtEnd = await helper.blogsInDb();
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
+      expect(blogsAtEnd).toHaveLength(initialBlogs.length + 1);
 
-      expect(blogsAtEnd[helper.initialBlogs.length]).toMatchObject({ likes: 0 });
+      expect(blogsAtEnd[initialBlogs.length]).toMatchObject({ likes: 0 });
     }, 10000);
   });
 
   describe('deleting a blog from the DB', () => {
-    test('deleting a blog with the correct id', async () => {
-      const blogs = await helper.blogsInDb();
-      const { id } = blogs[0];
+    test('you can delete a blog if you are the correct user', async () => {
+      const intitialBlogs = await helper.blogsInDb();
+      const { id } = intitialBlogs[0];
       await api
         .delete(`/api/blogs/${id}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204);
 
       const blogsAtEnd = await helper.blogsInDb();
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
+      expect(blogsAtEnd).toHaveLength(intitialBlogs.length - 1);
       expect(blogsAtEnd).not.toMatchObject({ id });
     });
 
-    test('an incorrect id does not delete any blogs', async () => {
-      const incorrectID = '1237826asav23123';
-      const beforeBlogs = await helper.blogsInDb();
-      await api
-        .delete(`/api/blogs/${incorrectID}`)
-        .expect(400);
+    test('you can\'t delete a blog if you are not it\'s ', async () => {
+      const intitialBlogs = await helper.blogsInDb();
+      const { id } = intitialBlogs[0];
+      const result = await api
+        .delete(`/api/blogs/${id}`)
+        .set('Authorization', `Bearer ${badToken}`)
+        .expect(401);
 
       const blogsAtEnd = await helper.blogsInDb();
-      expect(blogsAtEnd).toEqual(beforeBlogs);
+      expect(blogsAtEnd).toHaveLength(intitialBlogs.length);
+      expect(result.body.error).toContain('Permission denied. You do not own this blog.');
     });
   });
 
-  describe('updating a blog from the DB', () => {
+  describe('updating a blog from the DB is done correctly if you are the user', () => {
     test('updating a blog with the correct id', async () => {
-      const blogs = await helper.blogsInDb();
-      const { id } = blogs[0];
+      const intitialBlogs = await helper.blogsInDb();
+      const { id } = intitialBlogs[0];
       const newData = { title: 'Updated title' };
 
       await api
         .put(`/api/blogs/${id}`)
         .send(newData)
+        .set('Authorization', `Bearer ${token}`)
         .expect(201)
         .expect('Content-Type', /application\/json/);
 
       const blogsAtEnd = await helper.blogsInDb();
       const updatedBlog = blogsAtEnd.find((blog) => blog.id === id);
 
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+      expect(blogsAtEnd).toHaveLength(intitialBlogs.length);
       expect(updatedBlog).toMatchObject(newData);
     });
 
-    test('an incorrect id does not update any blogs', async () => {
-      const incorrectID = '1237826asav23123';
-      const beforeBlogs = await helper.blogsInDb();
+    test('updating a blog with the correct id', async () => {
+      const intitialBlogs = await helper.blogsInDb();
+      const { id } = intitialBlogs[0];
+      const newData = { title: 'Updated title' };
 
       await api
-        .put(`/api/blogs/${incorrectID}`)
-        .expect(400);
-
-      const blogsAtEnd = await helper.blogsInDb();
-      expect(blogsAtEnd).toEqual(beforeBlogs);
-    });
-  });
-});
-
-describe('User functionality testing', () => {
-  beforeEach(async () => {
-    await User.deleteMany({});
-
-    const passwordHash = await bcrypt.hash('sekret', 10);
-    const user = new User({
-      username: 'root',
-      name: 'rooter underson',
-      email: 'under@gmail.com',
-      passwordHash,
-    });
-
-    await user.save();
-  });
-
-  describe('when there is initially one user in db', () => {
-    test('creation succeeds with a fresh username', async () => {
-      const usersAtStart = await helper.usersInDb();
-
-      const newUser = {
-        username: 'mluukkai',
-        name: 'Matti Luukkainen',
-        email: 'matti@gmail.com',
-        password: 'salainen',
-      };
-
-      await api
-        .post('/api/users')
-        .send(newUser)
+        .put(`/api/blogs/${id}`)
+        .send(newData)
+        .set('Authorization', `Bearer ${token}`)
         .expect(201)
         .expect('Content-Type', /application\/json/);
 
-      const usersAtEnd = await helper.usersInDb();
-      expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
+      const blogsAtEnd = await helper.blogsInDb();
+      const updatedBlog = blogsAtEnd.find((blog) => blog.id === id);
 
-      const usernames = usersAtEnd.map((u) => u.username);
-      expect(usernames).toContain(newUser.username);
-    });
-
-    test('creation fails with proper statuscode and message if username already taken', async () => {
-      const usersAtStart = await helper.usersInDb();
-
-      const newUser = {
-        username: 'root',
-        name: 'Superuser',
-        password: 'salainen',
-      };
-
-      const result = await api
-        .post('/api/users')
-        .send(newUser)
-        .expect(400)
-        .expect('Content-Type', /application\/json/);
-
-      expect(result.body.error).toContain('`username` to be unique');
-
-      const usersAtEnd = await helper.usersInDb();
-      expect(usersAtEnd).toHaveLength(usersAtStart.length);
+      expect(blogsAtEnd).toHaveLength(intitialBlogs.length);
+      expect(updatedBlog).toMatchObject(newData);
     });
   });
 });
