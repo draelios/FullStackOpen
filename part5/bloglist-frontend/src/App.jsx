@@ -59,8 +59,22 @@ const App = () => {
     setUser(null);
   };
 
-  const handleCreate = (event) => {
+  const handleCreate = async (event) => {
     event.preventDefault();
+    const blogInfo = {
+      author: event.target.author.value,
+      title: event.target.title.value,
+      url: event.target.url.value,
+    };
+    const create = await blogService.createBlog(blogInfo, user.token);
+    if (create.status === 201) {
+      setNewBlog({
+        author: '',
+        title: '',
+        url: '',
+      });
+      blogService.getAll().then((blogList) => setBlogs(blogList));
+    }
   };
 
   return (

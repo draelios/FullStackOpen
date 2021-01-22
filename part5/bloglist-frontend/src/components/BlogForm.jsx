@@ -2,7 +2,7 @@
 import React from 'react';
 
 const BlogForm = ({ handleSumbit, handleChange, newBlog }) => {
-  const { title, author, url } = newBlog;
+  const { title, author, url } = newBlog || '';
   return (
     <>
       <form onSubmit={handleSumbit}>

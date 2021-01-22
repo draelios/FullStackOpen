@@ -7,9 +7,8 @@ const getAll = async () => {
   return request.data;
 };
 
-const createBlog = async (blog) => {
-  const request = await axios.post(baseUrl, blog);
-  return request.data;
-};
+const createBlog = async (blog, token) => axios.post(baseUrl, blog, {
+  headers: { Authorization: `Bearer ${token}` },
+});
 
 export default { getAll, createBlog };
