@@ -1,30 +1,66 @@
 import React, { useState, useEffect } from 'react';
+import BlogForm from './components/BlogForm';
 import BlogList from './components/BlogList';
 import LoginForm from './components/LoginForm';
+import User from './components/User';
 import blogService from './services/blogs';
+import loginService from './services/login';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [login, setLogin] = useState({});
+  const [newBlog, setNewBlog] = useState({});
 
   useEffect(() => {
     blogService.getAll().then((blogList) => setBlogs(blogList));
   }, []);
 
-  const handleChange = (event) => {
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogUser');
+    if (loggedUserJSON) {
+      const userInfo = JSON.parse(loggedUserJSON);
+      setUser(userInfo);
+    }
+  }, []);
+
+  const handleLoginChange = (event) => {
     const { target } = event;
     const { name, value } = target;
-    console.log(name, ' -> ', value);
     setLogin({
       [name]: value,
     });
   };
 
-  const handleSumbit = (event) => {
+  const handleBlogChange = (event) => {
+    const { target } = event;
+    const { name, value } = target;
+    setNewBlog({
+      [name]: value,
+    });
+  };
+
+  const handleLogin = async (event) => {
     event.preventDefault();
-    console.log('im in submit!');
-    setUser({ name: 'patata' });
+    const userCred = {
+      username: event.target.username.value,
+      password: event.target.password.value,
+    };
+    const userInfo = await loginService.userLogin(userCred);
+    window.localStorage.setItem(
+      'loggedBlogUser', JSON.stringify(userInfo.data),
+    );
+    setUser(userInfo.data);
+  };
+
+  const handleLogout = (event) => {
+    event.preventDefault();
+    window.localStorage.removeItem('loggedBlogUser');
+    setUser(null);
+  };
+
+  const handleCreate = (event) => {
+    event.preventDefault();
   };
 
   return (
@@ -33,18 +69,19 @@ const App = () => {
         user
           ? (
             <>
-              <h3>
-                {user.name}
-                {' '}
-                is logged in
-              </h3>
+              <User user={user} logOut={handleLogout} />
+              <BlogForm
+                handleSumbit={handleCreate}
+                handleChange={handleBlogChange}
+                newBlog={newBlog}
+              />
               <BlogList blogs={blogs} />
             </>
           )
           : (
             <LoginForm
-              handleSumbit={handleSumbit}
-              handleChange={handleChange}
+              handleSumbit={handleLogin}
+              handleChange={handleLoginChange}
               login={login}
             />
           )
