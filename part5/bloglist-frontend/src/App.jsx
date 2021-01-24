@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BlogForm from './components/BlogForm';
 import BlogList from './components/BlogList';
 import LoginForm from './components/LoginForm';
+import Notification from './components/Notification';
 import User from './components/User';
 import blogService from './services/blogs';
 import loginService from './services/login';
@@ -11,9 +12,11 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [login, setLogin] = useState({});
   const [newBlog, setNewBlog] = useState({});
+  const [notification, setNotification] = useState(null);
 
-  useEffect(() => {
-    blogService.getAll().then((blogList) => setBlogs(blogList));
+  useEffect(async () => {
+    const blogList = await blogService.getAll();
+    setBlogs(blogList.data);
   }, []);
 
   useEffect(() => {
@@ -66,19 +69,36 @@ const App = () => {
       title: event.target.title.value,
       url: event.target.url.value,
     };
-    const create = await blogService.createBlog(blogInfo, user.token);
-    if (create.status === 201) {
+    try {
+      const create = await blogService.createBlog(blogInfo, user.token);
       setNewBlog({
         author: '',
         title: '',
         url: '',
       });
-      blogService.getAll().then((blogList) => setBlogs(blogList));
+      const blogList = await blogService.getAll();
+      setBlogs(blogList.data);
+      setNotification({
+        message: `${create.data.title} was created correctly.`,
+        type: 'success',
+      });
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+    } catch (error) {
+      setNotification({
+        message: `${error.response.data.error}`,
+        type: 'error',
+      });
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
     }
   };
 
   return (
     <div>
+      <Notification notification={notification} />
       {
         user
           ? (
