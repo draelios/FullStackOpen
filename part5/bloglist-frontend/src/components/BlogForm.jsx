@@ -1,11 +1,36 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 
-const BlogForm = ({ handleSumbit, handleChange, newBlog }) => {
+const BlogForm = ({ handleSumbit }) => {
+  const [newBlog, setNewBlog] = useState({});
   const { title, author, url } = newBlog || '';
+
+  const handleChange = (event) => {
+    const { target } = event;
+    const { name, value } = target;
+    setNewBlog({
+      [name]: value,
+    });
+  };
+
+  const createBlog = (event) => {
+    event.preventDefault();
+    const blogInfo = {
+      author: event.target.author.value,
+      title: event.target.title.value,
+      url: event.target.url.value,
+    };
+    handleSumbit(blogInfo);
+    setNewBlog({
+      author: '',
+      title: '',
+      url: '',
+    });
+  };
+
   return (
     <>
-      <form onSubmit={handleSumbit}>
+      <form onSubmit={createBlog}>
         <label htmlFor="title">
           <b>Title: </b>
           <input

@@ -49,6 +49,7 @@ blogsRouter.post('/', async (request, response, next) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
   const decodedToken = jwt.verify(request.token, process.env.SECRET);
+
   if (!request.token || !decodedToken.id) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
@@ -75,12 +76,30 @@ blogsRouter.put('/:id', async (request, response, next) => {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
 
+  const { id } = request.params;
+  const updatedProperties = request.body;
+
   if (blogToDelete.userId.toString() !== decodedToken.id.toString()) {
     return response.status(401).json({ error: 'Permission denied. You do not own this blog.' });
   }
 
+  try {
+    const blog = await Blog.updateOne({ _id: id }, updatedProperties);
+    response.status(201).json(blog);
+  } catch (error) {
+    next(error);
+  }
+});
+
+blogsRouter.put('/:id/like', async (request, response, next) => {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+  if (!request.token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+
   const { id } = request.params;
   const updatedProperties = request.body;
+
   try {
     const blog = await Blog.updateOne({ _id: id }, updatedProperties);
     response.status(201).json(blog);
