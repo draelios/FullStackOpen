@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import '../App.css';
 
 const Blog = ({ blog, editBlog, deleteBlog }) => {
@@ -33,9 +34,9 @@ const Blog = ({ blog, editBlog, deleteBlog }) => {
       {' by '}
       {author}
       {'  '}
-      <button style={hideWhenVisible} type="button" onClick={toggleVisibility}> Show info</button>
-      <button style={showWhenVisible} type="button" onClick={toggleVisibility}> Hide info</button>
-      <div style={showWhenVisible}>
+      <button style={hideWhenVisible} type="button" onClick={toggleVisibility}>Show info</button>
+      <button style={showWhenVisible} type="button" onClick={toggleVisibility}>Hide info</button>
+      <div className="details" style={showWhenVisible}>
         <p>
           URL:
           {'  '}
@@ -50,6 +51,13 @@ const Blog = ({ blog, editBlog, deleteBlog }) => {
       </div>
     </div>
   );
+};
+
+Blog.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  blog: PropTypes.object.isRequired,
+  editBlog: PropTypes.func.isRequired,
+  deleteBlog: PropTypes.func.isRequired,
 };
 
 export default Blog;
