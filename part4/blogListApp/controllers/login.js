@@ -6,6 +6,7 @@ const User = require('../models/user');
 
 const loginRouter = express.Router();
 
+// eslint-disable-next-line consistent-return
 loginRouter.post('/', async (request, response, next) => {
   const { body } = request;
   try {

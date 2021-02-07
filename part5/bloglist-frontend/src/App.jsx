@@ -11,7 +11,6 @@ import loginService from './services/login';
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [login, setLogin] = useState({});
   const [notification, setNotification] = useState(null);
 
   useEffect(async () => {
@@ -27,19 +26,10 @@ const App = () => {
     }
   }, []);
 
-  const handleLoginChange = (event) => {
-    const { target } = event;
-    const { name, value } = target;
-    setLogin({
-      [name]: value,
-    });
-  };
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const handleLogin = async (login) => {
     const userCred = {
-      username: event.target.username.value,
-      password: event.target.password.value,
+      username: login.username,
+      password: login.password,
     };
     try {
       const userInfo = await loginService.userLogin(userCred);
@@ -155,9 +145,7 @@ const App = () => {
           )
           : (
             <LoginForm
-              handleSumbit={handleLogin}
-              handleChange={handleLoginChange}
-              login={login}
+              login={handleLogin}
             />
           )
 

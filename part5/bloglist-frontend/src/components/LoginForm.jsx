@@ -1,17 +1,40 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 
-const LoginForm = ({ handleSumbit, handleChange, login }) => {
-  const { username, password } = login;
+const LoginForm = ({ login }) => {
+  const [loginInfo, setLoginInfo] = useState({});
+
+  const handleChange = (event) => {
+    const { target } = event;
+    const { name, value } = target;
+    setLoginInfo({
+      ...loginInfo,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const userInfo = {
+      username: loginInfo.username,
+      password: loginInfo.password,
+    };
+    login(userInfo);
+    setLoginInfo({
+      username: '',
+      password: '',
+    });
+  };
+
   return (
     <>
-      <form onSubmit={handleSumbit}>
+      <form onSubmit={handleSubmit}>
         <label htmlFor="username">
           <b>Username: </b>
           <input
             type="text"
             name="username"
-            value={username}
+            value={loginInfo.username || ''}
             onChange={handleChange}
           />
         </label>
@@ -21,7 +44,7 @@ const LoginForm = ({ handleSumbit, handleChange, login }) => {
           <input
             type="password"
             name="password"
-            value={password}
+            value={loginInfo.password || ''}
             onChange={handleChange}
           />
         </label>

@@ -2,7 +2,6 @@
 Contains all the middlware funcins, such as error control o login verfication,
 access rights, etc.
 */
-const jwt = require('jsonwebtoken');
 const logger = require('./logger');
 
 const requestLogger = (request, response, next) => {
@@ -29,6 +28,7 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
+// eslint-disable-next-line consistent-return
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message);
 
