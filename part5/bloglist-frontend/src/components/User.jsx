@@ -8,7 +8,7 @@ const User = ({ user, logOut }) => (
       {' '}
       is logged in
     </h3>
-    <button type="button" onClick={logOut}> Log Out</button>
+    <button type="button" onClick={logOut}>Log Out</button>
   </>
 );
 

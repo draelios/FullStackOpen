@@ -9,6 +9,7 @@
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
+    "cypress": "NODE_ENV=test nodemon index.js",
     "test": "NODE_ENV=test jest --verbose -t",
     "test:unit": "NODE_ENV=test jest unit --verbose --runInBand",
     "test:int": "NODE_ENV=test jest int --verbose --runInBand"
