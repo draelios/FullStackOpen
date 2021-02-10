@@ -42,7 +42,7 @@ const Blog = ({ blog, editBlog, deleteBlog }) => {
           {'  '}
           {url}
         </p>
-        <div>
+        <div className="likes">
           likes:
           {likes}
           <button type="button" onClick={handleLike}>Like</button>
