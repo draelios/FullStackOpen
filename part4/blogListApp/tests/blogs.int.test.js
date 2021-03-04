@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 const helper = require('./test_helper');
 const app = require('../app');
 
-const api = supertest(app);
+const 
+ = supertest(app);
 const Blog = require('../models/blog');
 const User = require('../models/user');
 
@@ -32,7 +33,7 @@ describe('Blog functionality testing', () => {
 
     await Blog.deleteMany({});
 
-    const noteObjects = helper.initialBlogs.map((blog) => new Blog({ ...blog, userId: user.id }));
+    const noteObjects = helper.initialBlogs.map(blog => new Blog({ ...blog, userId: user.id }));
     const promiseArray = noteObjects.map((blog) => blog.save());
     await Promise.all(promiseArray);
   });

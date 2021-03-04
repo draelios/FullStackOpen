@@ -19,8 +19,7 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-
-const reducer = (state = initialState, action) => {
+const listReducer = (state = initialState, action) => {
   switch(action.type) {
     case 'VOTE': {
       const newState = state.map(anecdote => {
@@ -33,17 +32,12 @@ const reducer = (state = initialState, action) => {
     }
 
     case 'ADD': {
-      console.log(state);
-      console.log('before map');
       const newState = state.concat(asObject(action.data.content));
-      console.log('before map');
-      console.log(newState);
       return newState;
     }
 
     default: return state;
   }
-
 }
 
 export const voteAnecdote = (id) => {
@@ -62,4 +56,4 @@ export const newAnecdote = (content) => {
   }
 }
 
-export default reducer
+export default listReducer
